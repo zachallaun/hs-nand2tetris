@@ -17,5 +17,35 @@ CHIP DMux8Way {
     OUT a, b, c, d, e, f, g, h;
 
     PARTS:
-    // Put your code here:
+    // use scalar indicators to get outputs
+    And(a=usea, b=in, out=a);
+    And(a=useb, b=in, out=b);
+    And(a=usec, b=in, out=c);
+    And(a=used, b=in, out=d);
+    And(a=usee, b=in, out=e);
+    And(a=usef, b=in, out=f);
+    And(a=useg, b=in, out=g);
+    And(a=useh, b=in, out=h);
+
+
+    //Figure out the scalar indicators....I really want a 3-way and here...
+    // Instead, I'm breaking down into pairs, then using an And w/in that
+    Not(in=sel[0], out=notsel0);
+    Not(in=sel[1], out=notsel1);
+    Not(in=sel[2], out=notsel2);
+
+    And(a=notsel2, b=notsel1, out=isab);
+    And(a=notsel2, b=sel[1], out=iscd);
+    And(a=sel[2], b=notsel1, out=isef);
+    And(a=sel[2], b=sel[1], out=isgh);
+
+    And(a=isab, b=notsel0, out=usea);
+    And(a=isab, b=sel[0], out=useb);
+    And(a=iscd, b=notsel0, out=usec);
+    And(a=iscd, b=sel[0], out=used);
+    And(a=isef, b=notsel0, out=usee);
+    And(a=isef, b=sel[0], out=usef);
+    And(a=isgh, b=notsel0, out=useg);
+    And(a=isgh, b=sel[0], out=useh);
+
 }

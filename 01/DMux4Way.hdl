@@ -16,5 +16,19 @@ CHIP DMux4Way {
     OUT a, b, c, d;
 
     PARTS:
-    // Put your code here:
+    // Get outputs from scalar indicators
+    And(a=usea, b=in, out=a);
+    And(a=useb, b=in, out=b);
+    And(a=usec, b=in, out=c);
+    And(a=used, b=in, out=d);
+    
+
+    // and, get the scalar indicators
+    And(a=notsel1, b=notsel0, out=usea);
+    And(a=notsel1, b=sel[0], out=useb);
+    And(a=sel[1], b=notsel0, out=usec);
+    And(a=sel[1], b=sel[0], out=used);
+    Not(in=sel[0], out=notsel0);
+    Not(in=sel[1], out=notsel1);
+
 }
