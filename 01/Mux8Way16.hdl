@@ -18,5 +18,52 @@ CHIP Mux8Way16 {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+    // Big 8-way Or ... Can either use Or8Way on each channel, or do a tree
+    Or16(a=outa, b=outb, out=orab);
+    Or16(a=outc, b=outd, out=orcd);
+    Or16(a=oute, b=outf, out=oref);
+    Or16(a=outg, b=outh, out=orgh);
+    Or16(a=orab, b=orcd, out=orabcd);
+    Or16(a=oref, b=orgh, out=orefgh);
+    Or16(a=orabcd, b=orefgh, out=out);
+
+    // select which input to use
+    And16(a=a, b[0]=usea, b[1]=usea, b[2]=usea, b[3]=usea, b[4]=usea, b[5]=usea, b[6]=usea, b[7]=usea, b[8]=usea, b[9]=usea, b[10]=usea, b[11]=usea, b[12]=usea, b[13]=usea, b[14]=usea, b[15]=usea, out=outa);
+
+    And16(a=b, b[0]=useb, b[1]=useb, b[2]=useb, b[3]=useb, b[4]=useb, b[5]=useb, b[6]=useb, b[7]=useb, b[8]=useb, b[9]=useb, b[10]=useb, b[11]=useb, b[12]=useb, b[13]=useb, b[14]=useb, b[15]=useb, out=outb);
+
+    And16(a=c, b[0]=usec, b[1]=usec, b[2]=usec, b[3]=usec, b[4]=usec, b[5]=usec, b[6]=usec, b[7]=usec, b[8]=usec, b[9]=usec, b[10]=usec, b[11]=usec, b[12]=usec, b[13]=usec, b[14]=usec, b[15]=usec, out=outc);
+
+    And16(a=d, b[0]=used, b[1]=used, b[2]=used, b[3]=used, b[4]=used, b[5]=used, b[6]=used, b[7]=used, b[8]=used, b[9]=used, b[10]=used, b[11]=used, b[12]=used, b[13]=used, b[14]=used, b[15]=used, out=outd);
+
+    And16(a=e, b[0]=usee, b[1]=usee, b[2]=usee, b[3]=usee, b[4]=usee, b[5]=usee, b[6]=usee, b[7]=usee, b[8]=usee, b[9]=usee, b[10]=usee, b[11]=usee, b[12]=usee, b[13]=usee, b[14]=usee, b[15]=usee, out=oute);
+
+    And16(a=f, b[0]=usef, b[1]=usef, b[2]=usef, b[3]=usef, b[4]=usef, b[5]=usef, b[6]=usef, b[7]=usef, b[8]=usef, b[9]=usef, b[10]=usef, b[11]=usef, b[12]=usef, b[13]=usef, b[14]=usef, b[15]=usef, out=outf);
+
+    And16(a=g, b[0]=useg, b[1]=useg, b[2]=useg, b[3]=useg, b[4]=useg, b[5]=useg, b[6]=useg, b[7]=useg, b[8]=useg, b[9]=useg, b[10]=useg, b[11]=useg, b[12]=useg, b[13]=useg, b[14]=useg, b[15]=useg, out=outg);
+
+    And16(a=h, b[0]=useh, b[1]=useh, b[2]=useh, b[3]=useh, b[4]=useh, b[5]=useh, b[6]=useh, b[7]=useh, b[8]=useh, b[9]=useh, b[10]=useh, b[11]=useh, b[12]=useh, b[13]=useh, b[14]=useh, b[15]=useh, out=outh);
+
+    //Figure out the scalar indicators....I really want a 3-way and here...
+    // Instead, I'm breaking down into pairs, then using an And w/in that
+    Not(in=sel[0], out=notsel0);
+    Not(in=sel[1], out=notsel1);
+    Not(in=sel[2], out=notsel2);
+
+    And(a=notsel2, b=notsel1, out=isab);
+    And(a=notsel2, b=sel[1], out=iscd);
+    And(a=sel[2], b=notsel1, out=isef);
+    And(a=sel[2], b=sel[1], out=isgh);
+
+    And(a=isab, b=notsel0, out=usea);
+    And(a=isab, b=sel[0], out=useb);
+    And(a=iscd, b=notsel0, out=usec);
+    And(a=iscd, b=sel[0], out=used);
+    And(a=isef, b=notsel0, out=usee);
+    And(a=isef, b=sel[0], out=usef);
+    And(a=isgh, b=notsel0, out=useg);
+    And(a=isgh, b=sel[0], out=useh);
+
+
+
 }
