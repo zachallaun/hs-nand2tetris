@@ -45,23 +45,13 @@ CHIP ALU {
         ng; // 1 if (out<0),  0 otherwise
 
     PARTS:
-    // if out<0, MSB will be 1. 
-
-
-    // if all of out = 0, then Or8Way(out[0..7]) or Or8Way(out[8..15]) is false ... 
-    Not(in=nonzero, out=zr); 
-    Or(a=or1, b=or2, out=nonzero); // checking if any digits are nonzero
-    Or8Way(in=part1, out=or1); // checking each 8-bit chunk for nonzero
-    Or8Way(in=part2, out=or2);
 
     ///////////////
     // Starting from the input, then working towards output.
 
-    // Zeros (needed for both zx and zy)
-    Not16(in=x, out=notx);
-    And16(a=x, b=notx, out=zeros);
-    Mux16(a=x, b=zeros, sel=zx, out=x1);
-    Mux16(a=y, b=zeros, sel=zy, out=y1);
+    // selecting whether to set x and y to zeros
+    Mux16(a=x, b=false, sel=zx, out=x1);
+    Mux16(a=y, b=false, sel=zy, out=y1);
 
     // now handling nx, ny
     Not16(in=x1, out=notx1);
@@ -75,7 +65,14 @@ CHIP ALU {
     Mux16(a=xandy, b=xplusy, sel=f, out=xy);
 
     // finally, negate the output
+    // if out<0, MSB will be 1, so can set that here
     Not16(in=xy, out=notxy);
     Mux16(a=xy, b=notxy, sel=no, out[15]=ng, out[0..7]=part1, out[8..15]=part2, out=out);
+
+    // if all of out = 0, then Or8Way(out[0..7]) or Or8Way(out[8..15]) is false ... 
+    Not(in=nonzero, out=zr); 
+    Or(a=or1, b=or2, out=nonzero); // checking if any digits are nonzero
+    Or8Way(in=part1, out=or1); // checking each 8-bit chunk for nonzero
+    Or8Way(in=part2, out=or2);
     
 }
