@@ -17,16 +17,14 @@ CHIP PC {
 
     PARTS:
     Inc16(in=output, out=outputplus1);
+
     Mux16(sel=inc, a=output, b=outputplus1, out=incrd);
-
     Mux16(sel=load, a=incrd, b=in, out=loaded);
+    Mux16(sel=reset, a=loaded, b=false, out=reseted);
 
-    Not16(in=in, out=notin);
-    And16(a=in, b=notin, out=zeros);
-    Mux16(sel=reset, a=loaded, b=zeros, out=reseted);
-
-    Not(in=load, out=notload);
-    Or(a=load, b=notload, out=true);
+    // It kind of bothers me that we're reloading the register
+    // every time even when we don't need to, but this solution
+    // was simpler
     Register(load=true, in=reseted, out=out, out=output);
 
 }
