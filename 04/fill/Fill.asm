@@ -8,55 +8,82 @@
 // i.e. writes "black" in every pixel. When no key is pressed, the
 // program clears the screen, i.e. writes "white" in every pixel.
 
-// Put your code here.
-
-
-// First, I'm going to figure out how to black the screen
-
-
 // SCREEN and KBD are predefined to refer to RAM addresses 16384 (0x4000) and 24576 (0x6000),
+
+
+// In order to fill/clear the screen, need to cycle through a 
+// 32*256 words and write 0/-1 to each of them
+// keep a pointer, and at each time, increment it
+// NOTE that we can set A=foo in a C-instruction (which is
+// needed for setting it equal to the value in the offset+
+// screen address....)
 
 
 // Need to have two states - blacking the screen and clearing
 // the screen. If a key pressed, black; otherwise, clear
-   
-   // start by assuming no key pressed
-   @WHITE
-   0;JMP
 
+// At each cycle, check whether a key pressed. If pressed, jump to the black "function",
+// which colors the current screen cell black. Otherwise, jump to white, which does the
+// same thing, but setting it to 0
+// After this, increment the pointer
 
-(BLACK)
-	// If key is no longer pressed, jump to white
+// At very start of program, set the current screen pointer to @SCREEN
+@SCREEN
+D=A	
+@curr_screen_pos
+M=D
+// and set screen_size variable
+@8191
+D=A
+@SCREEN
+D=D+A
+@max_screen_pos
+M=D	
+	
+(START)
+	// If key is not pressed, jump to white
 	@KBD
 	D=M // if no key pressed, d == 0
 	@WHITE
 	D; JEQ
+	// otherwise, jump to black
+	@BLACK
+	0; JMP
 
+(BLACK)
 
 	// Set one pixel to black
-	@32767
-	// setting D to what I think is the max value ... really, I want -1
-	D=A 	
-	@SCREEN
-	M=D 
-
-	@BLACK
+	@curr_screen_pos
+	A=M // D is now the number that we want
+	M=-1 // M[curr_screen_pos] = -1
+	// and increment the screen pointer
+	@INCR
 	0; JMP
 
 (WHITE)
-	// before doing anythign else, check if a key pressed
-	// if so, jump to BLACK
-	@KBD
-	D=M // if any key is pressed, d != 0
-	@BLACK
-	D; JNE 
-
 	// set one pixel to white
-	@0
-	D=A
-	@SCREEN
-	M=D // setting 1st word of screen to 0's => white
+	@curr_screen_pos
+	A=M
+	M=0
+	@INCR
+
+(INCR)
+	// increment the pointer; if greater thyan max_screen_pos, reset it
+	@curr_screen_pos
+	D=M+1
+	M=D
+
+	@max_screen_pos
+	D=D-M // d = curr_screen_pos - max_screen_pos
+	@START
+	D;JNE // If not the same, don't reset
 	
-	// need to continue drawing!
-	@WHITE
-	0; JMP
+	// otherwise,reset M
+	@SCREEN
+	D=A
+	@curr_screen_pos
+	M=D
+	@START
+	0;JMP 
+
+
