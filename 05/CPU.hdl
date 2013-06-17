@@ -52,7 +52,7 @@ CHIP CPU {
     // ===== ALU =====
     // First input to ALU is always D; 2nd is A or M based on inst[12]
     Mux16(a=outA, b=inM, out=outAM, sel=instruction[12]);
-    ALU(x=outD, y=outAM, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=outM, out=outALU, out=inD);
+    ALU(x=outD, y=outAM, zx=instruction[11], nx=instruction[10], zy=instruction[9], ny=instruction[8], f=instruction[7], no=instruction[6], out=outM, out=outALU, out=inD, zr=zr, ng=ng);
     //also need logic as to whether to write to M ... it's part of the instruction
     And(a=isCcmd, b=instruction[3], out=writeM);
 
@@ -70,10 +70,21 @@ CHIP CPU {
 
     // ===== Program counter =====
     // TODO - need to implement the jump logic!
+    // always jump based on the output of the ALU (outALU)
+    // we already know whether it's negative (ng) or zero (zr)
 
     // Want to load new address if any of the jump bits instruction[0..2] are set
-    Or(a=instruction[0], b=instruction[1], out=or12);
-    Or(a=or12, b=instruction[2], out=or123);
+    // and the corresponding output condition is met
+    Not(in=ng, out=ge); // output >= 0
+    Not(in=zr, out=nz); // output != 0
+    And(a=ge, b=nz, out=pos); // output > 0
+    
+    And(a=instruction[0], b=pos, out=jmp0);
+    And(a=instruction[1], b=zr, out=jmp1);
+    And(a=instruction[2], b=ng, out=jmp2);
+    
+    Or(a=jmp0, b=jmp1, out=or12);
+    Or(a=or12, b=jmp2, out=or123);
     And(a=isCcmd, b=or123, out=loadPC);
     // want to increment if we didn't have a load or a reset instruction
     Or(a=reset, b=loadPC, out=resetORload);
