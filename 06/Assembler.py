@@ -22,6 +22,9 @@ def handle_a_expr(line):
 
     # I could error if it has any non-allowed symbold in the variable
     # name, but I'm avoiding that for now
+    # "A user-deﬁned symbol can be any sequence of letters, digits, 
+    # underscore (_), dot (.), dollar sign ($), and colon (:) 
+    # that does not begin with a digit." (from Ch6)
     # re.search("\+|\-|\*|/|&|\||!|@", line[1:])
 
     # it's a hard-coded constant, no need to deal with variable names
@@ -44,9 +47,12 @@ def handle_a_expr(line):
 
 # Questions:
 # * Can multiple registers be set as the output of an assignment?
-#    e.g.: A,D=D+1
+#    e.g.: A,D=D+1. => Yup! MD=D+1
 #
 # I'm building this up incrementally, starting w/ single 
+
+# NB - format of a C expr is
+# x=y;JMP
 def handle_c_expr(line):
     return [line]
 
