@@ -11,22 +11,15 @@ infile = open('test.asm', 'r')
 #
 # Symbols may be used in place of the '#'
 #
-# I assume that I should be raising exceptions rather than printing
-# errors, but I'm being lazy for debugging while I look up the 
-# required python functions. I'll refactor later
-#
-# This has to return the binary translation, b/c
 def handle_a_expr(line):
-    bincmd = '0'*16
-
     # I could error if it has any non-allowed symbold in the variable
     # name, but I'm avoiding that for now
     # "a user-defined symbol may be any combination of letters, digits, 
     # underscore (_), dot (.), dollar sign ($), and colon (:) 
     # that does not begin with a digit." (from Ch6)
     # re.search("\+|\-|\*|/|&|\||!|@", line[1:])
-
-    # it's a hard-coded constant, no need to deal with variable names
+    # it's a hard-coded constant (all digits!), 
+    # so no need to deal with variable names
     if line[1:].isdigit():
         decnum = int(line[1:])
         binnum = bin(decnum)[2:]
@@ -36,7 +29,9 @@ def handle_a_expr(line):
         numdigits = min(15, len(binnum))
         numzeros = 16-numdigits
         bincmd='0'*numzeros + binnum[-numdigits:]
-    else:
+    # TODO: check here for '(' which is the start of labels 
+    #(which don't increment the line #)
+    else: 
         # TODO: better way to set allowed symbols/characters?
         if line[1].isdigit() or line[1] in ['-', '*', '+', '/']:
             raise Exception("Assembler: illegal variable name:  " + line)
@@ -51,16 +46,82 @@ def handle_a_expr(line):
 
 # NB - format of a C expr is
 # x=y;JMP
-def handle_c_expr(line):
-    bincmd = '0'*16
-    return [line]
-
-    # check that it contains '=' or ';' - otherwise, it's an invalid expression
-
+def segment_c_expr(line):
     # if line contains '=', figure out what registers to assign to; otherwise, 
-    # bincmd[3, 4, 5] = 0  (split on =, registers are before it, rest of cmd is after)
+    if '=' in line:
+        tokens = line.split('=')
+        dest = tokens[0]
+        line = tokens[1]
+    else:
+        dest = None
+    if ';' in line:
+        tokens = line.split(';')
+        expr = tokens[0]
+        jump = tokens[1]
+    else:
+        expr = line
+        jump = None
+    return (dest, expr, jump)
 
-    # if line contains ';', figure out what the jump is and fill in bincmd [0, 1, 2]
+def parse_dest(dest):
+    # TODO: Ignores poorly-formed dest commands
+    if dest is None:
+        destcmd = '000'
+    else:
+        if 'A' in dest:
+            destcmd = destcmd + '1'
+        else:
+            destcmd = destcmd + '0'
+        if 'D' in dest:
+            destcmd = destcmd + '1'
+        else:
+            destcmd = destcmd + '0'
+        if 'M' in dest:
+            destcmd = destcmd + '1'
+        else:
+            destcmd = destcmd + '0'
+    return destcmd
+
+# parses jump command - raises Exception if bad command
+def parse_jump(jump):
+    if jump is None:
+        jumpcmd = '000'
+    elif jump == 'JGT':
+        jumpcmd = '001'
+    elif jump == 'JEQ':
+        jumpcmd = '010'
+    elif jump == 'JGE':
+        jumpcmd = '011'
+    elif jump == 'JLT':
+        jumpcmd = '100'
+    elif jump == 'JNE':
+        jumpcmd = '101'
+    elif jump == 'JLE':
+        jumpcmd = '110'
+    elif jump == 'JMP':
+        jumpcmd = '111'
+    else:
+        raise Exception("Assembler: Illegal jump command: " + jump)
+    return jumpcmd
+    
+# there are a limited number of allowed calculations ...
+# so, effectively do a switch on them
+def parse_calc(calc):
+    return '0000000'
+
+def handle_c_expr(line):
+    dest, calc, jump = segment_c_expr(line)
+    if calc is None:
+        raise Exception("Assembler: c-command must have command: " + line)
+    if calc == line:
+        raise Excpetion("Assembler: c-command line must contain '=' or ';' ... " + line)
+
+    destcmd = parse_dest(dest)
+    jumpcmd = parse_jump(jump)
+    calccmd = parse_calc(calc)
+    
+    bincmd = '000' + calccmd + destcmd + jumpcmd
+    return bincmd
  
 
 
@@ -91,6 +152,7 @@ if __name__ == "__main__":
             hackcode.append(cmd)
 
         print cmd
+    print hackcode
 
     
 
