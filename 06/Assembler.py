@@ -198,6 +198,28 @@ class hackAssembler():
     
         bincmd = '111' + calccmd + destcmd + jumpcmd
         return [bincmd]
+    
+    # this function assumes that the input is an array of lines,
+    # some of which will be labels.
+    # it returns an array w/ the labels removed and their appropriate
+    # line numbers added to the vardict
+    def handle_labels(self, inlines):
+        outlines = []
+        # if we have a label, this will be the line it refers to (0-indexed)
+        next_line = 0
+        for line in inlines:
+            # if it's a label
+            if line[0] == '(' and line[-1] == ')':
+                labelname = line[1:-1]
+                if labelname in self.vardict.keys():
+                    raise Exception("Assembler: attempted to add already-existing label: " + line)
+                self.vardict[labelname] = next_line
+            else:
+                next_line += 1
+                outlines.append(line)
+        return outlines
+
+
  
 # preprocessing, not part of the assembler itself
 def clean_file(filename):
@@ -215,20 +237,30 @@ def clean_file(filename):
 
 if __name__== "__main__":
 
-    cleanlines = clean_file('test.asm')
+
 
     # I'm doing this in two passes - the first to get all labels assigned,
     # the second to properly encode all the asm->hack commands
     # NB - unless I misunderstand how this is supposed to work, @label will
     # have really weird behavior if it's not followed by 0;JMP
+    # todo: I think this is kinda ugly ... I'm not happy w/ which functions 
+    #     are class member functions
+    cleanlines = clean_file('test.asm')
     myassembler = hackAssembler()
-
+    print "Clean lines"
+    for line in cleanlines:
+        print line
+    print "Code lines"
+    codelines = myassembler.handle_labels(cleanlines)
+    for line in codelines:
+        print line
+    print myassembler.vardict
 
     # next step is handling all of the A-commands
     print("\n\n  Assembling:\n")
 
     hackcode = []
-    for line in cleanlines:
+    for line in codelines:
         print line
         if line[0] == '@':
             cmd = myassembler.handle_a_expr(line)
