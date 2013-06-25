@@ -8,38 +8,59 @@ class hackAssembler():
         # Where we store the labels and variables
         # TODO: Actually, it might make more sense to have separate dicts?
         # @_label_ isn't followed immeidately by a jump ... 
-        vardict = {}
+        self.vardict = {}
         # if we encounter a label this is the line that it'll refer to
-        next_line = 1
+        #next_line = 1
         # if we encounter a variable name, this is the address it'll get
-        next_addr = 16
+        self.next_addr = 16
 
+    # generates the appropriate a command from a given int
+    def cmd_from_num(self, num):
+        binnum = bin(num)[2:]
+        # checking bounds!
+        if (0 > num) or (num >= 2**15):
+            raise Exception("Assembler: out-of-range assignment to A!:  " + line)
+        numdigits = min(15, len(binnum))
+        numzeros = 16-numdigits
+        bincmd='0'*numzeros + binnum[-numdigits:]
+        return bincmd
+
+    # returns whether or not the input string is a legal variable namex
+    # TODO: better way to set allowed symbols/characters?
+    def is_legal_var_name(self, str):
+        if str[0].isdigit():
+            return False
+        for sym in ['-', '*', '+', '/', '&', '|', '!']:
+            if sym in str:
+                return False
+        else:
+            return True
+
+    # line[0] will be '@'
     def handle_a_expr(self, line):
-        # I could error if it has any non-allowed symbold in the variable
-        # name, but I'm avoiding that for now
-        # "a user-defined symbol may be any combination of letters, digits, 
-        # underscore (_), dot (.), dollar sign ($), and colon (:) 
-        # that does not begin with a digit." (from Ch6)
-        # re.search("\+|\-|\*|/|&|\||!|@", line[1:])
-        # it's a hard-coded constant (all digits!), 
-        # so no need to deal with variable names
         if line[1:].isdigit():
             decnum = int(line[1:])
-            binnum = bin(decnum)[2:]
-            # checking bounds!
-            if (0 > decnum) or (decnum >= 2**15):
-                raise Exception("Assembler: out-of-range assignment to A!:  " + line)
-            numdigits = min(15, len(binnum))
-            numzeros = 16-numdigits
-            bincmd='0'*numzeros + binnum[-numdigits:]
+            bincmd = self.cmd_from_num(decnum)
         # TODO: check here for '(' which is the start of labels 
         #(which don't increment the line #)
-        else: 
-            # TODO: better way to set allowed symbols/characters?
-            if line[1].isdigit() or line[1] in ['-', '*', '+', '/', '&', '|', '!']:
-                raise Exception("Assembler: illegal variable name:  " + line)
-            print "Assembler: Variables NYI!: " + line
+        elif self.is_legal_var_name(line[1:]): 
+            # TODO: define this earlier?
+            varname = line[1:]
+            if varname in self.vardict.keys():
+                addr = self.vardict[varname]
+                bincmd = self.cmd_from_num(addr)
+            else:
+                bincmd = self.cmd_from_num(self.next_addr)
+                self.vardict[varname] = self.next_addr;
+                self.next_addr += 1;
+                # TODO: check that we haven't overflowed our available memory?
+
+        else:
+            raise Exception("Assembler: illegal variable name:  " + line)
+
         return [bincmd]
+
+
 
     # NB - format of a C expr is
     # x=y;JMP

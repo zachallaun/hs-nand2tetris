@@ -204,7 +204,29 @@ class TestAExpression(unittest.TestCase):
         in2 = '@-1'
         self.assertRaises(Exception, self.asm.handle_a_expr, in2)
 
-        
+
+class TestVars(unittest.TestCase):
+    def setUp(self):
+        self.asm = Assembler.hackAssembler()
+
+    # checks that next_addr increments as expected, and 
+    # repeated variables get the same address
+    def testSimple1(self):
+        self.assertEqual(16, self.asm.next_addr)
+        cmd1 = "@foo"
+        out1 = self.asm.handle_a_expr(cmd1)
+        self.assertEqual(17, self.asm.next_addr)
+        self.assertEqual(['0000000000010000'], out1)
+        cmd2 = "@bar"
+        out2 = self.asm.handle_a_expr(cmd2)
+        self.assertEqual(18, self.asm.next_addr)
+        self.assertEqual(['0000000000010001'], out2)
+        out3 = self.asm.handle_a_expr(cmd1)
+        self.assertEqual(18, self.asm.next_addr)
+        self.assertEqual(['0000000000010000'], out3)
+
+
+
 # add A expressions with vars? 
 # test this by defining variables in sequence, then checking their addresses
 # will require turning the self.asm into a class s.t. it can keep track of  
