@@ -1,6 +1,7 @@
 #! /usr/local/bin/python
 
 import re
+import sys
 
 class hackAssembler():
 
@@ -242,7 +243,14 @@ def clean_file(filename):
 
 if __name__== "__main__":
 
-
+    # command line arguments!
+    args = sys.argv
+    if len(args) != 3:
+        print "Usage: ./Assembler.py infile outfile"
+        exit
+    
+    infile = args[1]
+    outfile = args[2]
 
     # I'm doing this in two passes - the first to get all labels assigned,
     # the second to properly encode all the asm->hack commands
@@ -250,32 +258,20 @@ if __name__== "__main__":
     # have really weird behavior if it's not followed by 0;JMP
     # todo: I think this is kinda ugly ... I'm not happy w/ which functions 
     #     are class member functions
-    cleanlines = clean_file('test.asm')
+    cleanlines = clean_file(infile)
     myassembler = hackAssembler()
-    print "Clean lines"
-    for line in cleanlines:
-        print line
-    print "Code lines"
     codelines = myassembler.handle_labels(cleanlines)
-    for line in codelines:
-        print line
-    print myassembler.vardict
-
-    # next step is handling all of the A-commands
-    print("\n\n  Assembling:\n")
 
     hackcode = []
     for line in codelines:
-        print line
         if line[0] == '@':
             cmd = myassembler.handle_a_expr(line)
             hackcode.append(cmd)
         else:
             cmd = myassembler.handle_c_expr(line)
             hackcode.append(cmd)
-        print cmd
 
-    outfile = open('test.hack', 'w');
+    outfile = open(outfile, 'w');
     for cmd in hackcode:
         outfile.write(cmd[0] + '\n')
     outfile.close()
