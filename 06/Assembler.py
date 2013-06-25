@@ -2,7 +2,7 @@
 
 import re
 
-infile = open('test.asm', 'r')
+infile = open('input.asm', 'r')
 
 # In hack's assembly language, @# indicates that the 
 # input number should be written to the A register
@@ -33,7 +33,7 @@ def handle_a_expr(line):
     #(which don't increment the line #)
     else: 
         # TODO: better way to set allowed symbols/characters?
-        if line[1].isdigit() or line[1] in ['-', '*', '+', '/']:
+        if line[1].isdigit() or line[1] in ['-', '*', '+', '/', '&', '|', '!']:
             raise Exception("Assembler: illegal variable name:  " + line)
         print "Assembler: Variables NYI!: " + line
     return [bincmd]
@@ -68,6 +68,7 @@ def parse_dest(dest):
     if dest is None:
         destcmd = '000'
     else:
+        destcmd = ''
         if 'A' in dest:
             destcmd = destcmd + '1'
         else:
@@ -105,9 +106,68 @@ def parse_jump(jump):
     return jumpcmd
     
 # there are a limited number of allowed calculations ...
-# so, effectively do a switch on them
+# so, effectively do a switch on them. This feels dirty.
 def parse_calc(calc):
-    return '0000000'
+    if calc == '0':
+        calccmd = '0101010'
+    elif calc == '1':
+        calccmd = '0111111'
+    elif calc == '-1':
+        calccmd = '0111010'
+    elif calc == 'D':
+        calccmd = '0001100'
+    elif calc == 'A':
+        calccmd = '0110000'
+    elif calc == '!D':
+        calccmd = '0001101'
+    elif calc == '!A':
+        calccmd = '0110001'
+    elif calc == '-D':
+        calccmd = '0001111'
+    elif calc == '-A':
+        calccmd = '0110011'
+    elif calc == 'D+1' or calc == '1+D':
+        calccmd = '0011111'
+    elif calc == 'A+1' or calc == '1+A':
+        calccmd = '0110111'
+    elif calc == 'D-1':
+        calccmd = '0001110'
+    elif calc == 'A-1':
+        calccmd = '0110010'
+    elif calc == 'D+A' or calc == 'A+D':
+        calccmd = '0000010'
+    elif calc == 'D-A':
+        calccmd = '0010011'
+    elif calc == 'A-D':
+        calccmd = '0000111'
+    elif calc == 'D&A' or calc == 'A&D':
+        calccmd = '0000000'
+    elif calc == 'D|A' or calc == 'A|D':
+        calccmd = '0010101'
+    elif calc == 'M':
+        calccmd = '1110000'
+    elif calc == '!M':
+        calccmd = '1110001'
+    elif calc == '-M':
+        calccmd = '1110011'
+    elif calc == 'M+1' or calc == '1+M':
+        calccmd = '1110111'
+    elif calc == 'M-1':
+        calccmd = '1110010'
+    elif calc == 'D+M' or calc == 'M+D':
+        calccmd = '1000010'
+    elif calc == 'D-M':
+        calccmd = '1010011'
+    elif calc == 'M-D':
+        calccmd = '1000111'
+    elif calc == 'D&M' or calc == 'M&D':
+        calccmd = '1000000'
+    elif calc == 'D|M' or calc == 'M|D':
+        calccmd = '1010101'
+    else:
+        raise Exception("Assembler: illegal calculation: " + calc)
+        
+    return calccmd
 
 def handle_c_expr(line):
     dest, calc, jump = segment_c_expr(line)
@@ -120,8 +180,8 @@ def handle_c_expr(line):
     jumpcmd = parse_jump(jump)
     calccmd = parse_calc(calc)
     
-    bincmd = '000' + calccmd + destcmd + jumpcmd
-    return bincmd
+    bincmd = '111' + calccmd + destcmd + jumpcmd
+    return [bincmd]
  
 
 
@@ -140,7 +200,7 @@ if __name__ == "__main__":
 
     # next step is handling all of the A-commands
     print("\n\n  Assembling:\n")
-    outfile = open('test.hack', 'w');
+    outfile = open('input.hack', 'w');
     hackcode = []
     for line in cleanlines:
         print line
@@ -152,7 +212,9 @@ if __name__ == "__main__":
             hackcode.append(cmd)
 
         print cmd
-    print hackcode
+    for cmd in hackcode:
+        outfile.write(cmd[0] + '\n')
+    outfile.close()
 
     
 
