@@ -4,7 +4,6 @@ import re
 
 infile = open('test.asm', 'r')
 
-
 # In hack's assembly language, @# indicates that the 
 # input number should be written to the A register
 # The equivalent machine language representation is
@@ -22,7 +21,7 @@ def handle_a_expr(line):
 
     # I could error if it has any non-allowed symbold in the variable
     # name, but I'm avoiding that for now
-    # "A user-deﬁned symbol can be any sequence of letters, digits, 
+    # "a user-defined symbol may be any combination of letters, digits, 
     # underscore (_), dot (.), dollar sign ($), and colon (:) 
     # that does not begin with a digit." (from Ch6)
     # re.search("\+|\-|\*|/|&|\||!|@", line[1:])
@@ -33,16 +32,15 @@ def handle_a_expr(line):
         binnum = bin(decnum)[2:]
         # checking bounds!
         if (0 > decnum) or (decnum >= 2**15):
-            print "Assembler: out-of-range assignment to A!:  " + line
+            raise Exception("Assembler: out-of-range assignment to A!:  " + line)
         numdigits = min(15, len(binnum))
         numzeros = 16-numdigits
         bincmd='0'*numzeros + binnum[-numdigits:]
     else:
-        if line[1].isdigit():
-            print "Assembler: illegal variable name:  " + line 
-
+        # TODO: better way to set allowed symbols/characters?
+        if line[1].isdigit() or line[1] in ['-', '*', '+', '/']:
+            raise Exception("Assembler: illegal variable name:  " + line)
         print "Assembler: Variables NYI!: " + line
-
     return [bincmd]
 
 # Questions:
@@ -54,7 +52,16 @@ def handle_a_expr(line):
 # NB - format of a C expr is
 # x=y;JMP
 def handle_c_expr(line):
+    bincmd = '0'*16
     return [line]
+
+    # check that it contains '=' or ';' - otherwise, it's an invalid expression
+
+    # if line contains '=', figure out what registers to assign to; otherwise, 
+    # bincmd[3, 4, 5] = 0  (split on =, registers are before it, rest of cmd is after)
+
+    # if line contains ';', figure out what the jump is and fill in bincmd [0, 1, 2]
+ 
 
 
 
