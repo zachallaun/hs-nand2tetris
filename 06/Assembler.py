@@ -29,13 +29,9 @@ class hackAssembler():
     # returns whether or not the input string is a legal variable namex
     # TODO: better way to set allowed symbols/characters?
     def is_legal_var_name(self, str):
-        if str[0].isdigit():
-            return False
-        for sym in ['-', '*', '+', '/', '&', '|', '!']:
-            if sym in str:
-                return False
-        else:
-            return True
+        illegal_chars = {'-', '*', '+', '/', '&', '|', '!'}
+        return not (str[0].isdigit() or
+                    any((c in illegal_chars) for c in str))
 
     # line[0] will be '@'
     def handle_a_expr(self, line):

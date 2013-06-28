@@ -7,6 +7,13 @@ class TestCExpressions(unittest.TestCase):
     def setUp(self):
         self.asm = Assembler.hackAssembler()
 
+    def testLegalVarName(self):
+        self.assertTrue(self.asm.is_legal_var_name("a123"))
+        self.assertTrue(self.asm.is_legal_var_name("FOO"))
+        self.assertFalse(self.asm.is_legal_var_name("1abc"))
+        self.assertFalse(self.asm.is_legal_var_name("a!"))
+        self.assertFalse(self.asm.is_legal_var_name("1!"))
+
     def testIllegalFormat(self):
         in1 = 'JMP' # need to have somethign to left of ';'
         in2 = ';JMP' # need to have somethign to left of ';'
