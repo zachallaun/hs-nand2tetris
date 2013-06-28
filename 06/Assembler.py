@@ -148,6 +148,13 @@ class hackAssembler():
         bincmd = '111' + calccmd + destcmd + jumpcmd
         return [bincmd]
 
+    def is_label(self, str):
+        str = str.strip()
+        return str[0] == '(' and str[-1] == ')'
+
+    def get_label_name(self, str):
+        return str.strip()[1:-1]
+
     # this function assumes that the input is an array of lines,
     # some of which will be labels.
     # it returns an array w/ the labels removed and their appropriate
@@ -157,9 +164,8 @@ class hackAssembler():
         # if we have a label, this will be the line it refers to (0-indexed)
         next_line = 0
         for line in inlines:
-            # if it's a label
-            if line[0] == '(' and line[-1] == ')':
-                labelname = line[1:-1]
+            if self.is_label(line):
+                labelname = self.get_label_name(line)
                 if labelname in self.vardict.keys():
                     raise Exception("Assembler: attempted to add already-existing label: " + line)
                 self.vardict[labelname] = next_line
