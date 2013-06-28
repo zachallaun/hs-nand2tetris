@@ -76,88 +76,57 @@ class hackAssembler():
 
     # parses jump command - raises Exception if bad command
     def parse_jump(self, jump):
-        if jump is None:
-            jumpcmd = '000'
-        elif jump == 'JGT':
-            jumpcmd = '001'
-        elif jump == 'JEQ':
-            jumpcmd = '010'
-        elif jump == 'JGE':
-            jumpcmd = '011'
-        elif jump == 'JLT':
-            jumpcmd = '100'
-        elif jump == 'JNE':
-            jumpcmd = '101'
-        elif jump == 'JLE':
-            jumpcmd = '110'
-        elif jump == 'JMP':
-            jumpcmd = '111'
+        jumps = { None: '000', 'JGT': '001', 'JEQ': '010',
+                 'JGE': '011', 'JLT': '100', 'JNE': '101',
+                 'JLE': '110', 'JMP': '111' }
+        if jump in jumps:
+            return jumps[jump]
         else:
             raise Exception("Assembler: Illegal jump command: " + jump)
-        return jumpcmd
 
-    # there are a limited number of allowed calculations ...
-    # so, effectively do a switch on them. This feels dirty.
     def parse_calc(self, calc):
-        if calc == '0':
-            calccmd = '0101010'
-        elif calc == '1':
-            calccmd = '0111111'
-        elif calc == '-1':
-            calccmd = '0111010'
-        elif calc == 'D':
-            calccmd = '0001100'
-        elif calc == 'A':
-            calccmd = '0110000'
-        elif calc == '!D':
-            calccmd = '0001101'
-        elif calc == '!A':
-            calccmd = '0110001'
-        elif calc == '-D':
-            calccmd = '0001111'
-        elif calc == '-A':
-            calccmd = '0110011'
-        elif calc == 'D+1' or calc == '1+D':
-            calccmd = '0011111'
-        elif calc == 'A+1' or calc == '1+A':
-            calccmd = '0110111'
-        elif calc == 'D-1':
-            calccmd = '0001110'
-        elif calc == 'A-1':
-            calccmd = '0110010'
-        elif calc == 'D+A' or calc == 'A+D':
-            calccmd = '0000010'
-        elif calc == 'D-A':
-            calccmd = '0010011'
-        elif calc == 'A-D':
-            calccmd = '0000111'
-        elif calc == 'D&A' or calc == 'A&D':
-            calccmd = '0000000'
-        elif calc == 'D|A' or calc == 'A|D':
-            calccmd = '0010101'
-        elif calc == 'M':
-            calccmd = '1110000'
-        elif calc == '!M':
-            calccmd = '1110001'
-        elif calc == '-M':
-            calccmd = '1110011'
-        elif calc == 'M+1' or calc == '1+M':
-            calccmd = '1110111'
-        elif calc == 'M-1':
-            calccmd = '1110010'
-        elif calc == 'D+M' or calc == 'M+D':
-            calccmd = '1000010'
-        elif calc == 'D-M':
-            calccmd = '1010011'
-        elif calc == 'M-D':
-            calccmd = '1000111'
-        elif calc == 'D&M' or calc == 'M&D':
-            calccmd = '1000000'
-        elif calc == 'D|M' or calc == 'M|D':
-            calccmd = '1010101'
+        calc_cmds = {'0':   '0101010',
+                     '1':   '0111111',
+                     '-1':  '0111010',
+                     'D':   '0001100',
+                     'A':   '0110000',
+                     '!D':  '0001101',
+                     '!A':  '0110001',
+                     '-D':  '0001111',
+                     '-A':  '0110011',
+                     'D+1': '0011111',
+                     '1+D': '0011111',
+                     'A+1': '0110111',
+                     '1+A': '0110111',
+                     'D-1': '0001110',
+                     'A-1': '0110010',
+                     'D+A': '0000010',
+                     'A+D': '0000010',
+                     'D-A': '0010011',
+                     'A-D': '0000111',
+                     'D&A': '0000000',
+                     'A&D': '0000000',
+                     'D|A': '0010101',
+                     'A|D': '0010101',
+                     'M':   '1110000',
+                     '!M':  '1110001',
+                     '-M':  '1110011',
+                     'M+1': '1110111',
+                     '1+M': '1110111',
+                     'M-1': '1110010',
+                     'D+M': '1000010',
+                     'M+D': '1000010',
+                     'D-M': '1010011',
+                     'M-D': '1000111',
+                     'D&M': '1000000',
+                     'M&D': '1000000',
+                     'D|M': '1010101',
+                     'M|D': '1010101'}
+
+        if calc in calc_cmds:
+            return calc_cmds[calc]
         else:
             raise Exception("Assembler: illegal calculation: " + calc)
-        return calccmd
 
     def handle_c_expr(self, line):
         dest, calc, jump = self.segment_c_expr(line)
