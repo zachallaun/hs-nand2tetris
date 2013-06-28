@@ -73,17 +73,17 @@ class hackAssembler():
         else:
             destcmd = ''
             if 'A' in dest:
-                destcmd = destcmd + '1'
+                destcmd += '1'
             else:
-                destcmd = destcmd + '0'
+                destcmd += '0'
             if 'D' in dest:
-                destcmd = destcmd + '1'
+                destcmd += '1'
             else:
-                destcmd = destcmd + '0'
+                destcmd += '0'
             if 'M' in dest:
-                destcmd = destcmd + '1'
+                destcmd += '1'
             else:
-                destcmd = destcmd + '0'
+                destcmd += '0'
         return destcmd
 
     # parses jump command - raises Exception if bad command
