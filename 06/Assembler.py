@@ -8,12 +8,12 @@ class hackAssembler():
     def __init__(self):
         # Where we store the labels and variables
         # TODO: Actually, it might make more sense to have separate dicts?
-        # @_label_ isn't followed immeidately by a jump ... 
+        # @_label_ isn't followed immeidately by a jump ...
         # initialize w/ the predefined symbols
-        self.vardict = {'SP':0, 'LCL':1, 'ARG':2, 'THIS':3, 'THAT':4, 
+        self.vardict = {'SP':0, 'LCL':1, 'ARG':2, 'THIS':3, 'THAT':4,
                         'R0':0, 'R1':1, 'R2':2, 'R3':3, 'R4':4, 'R5':5,
                         'R6':6, 'R7':7, 'R8':8, 'R9':9, 'R10':10, 'R11':11,
-                        'R12':12, 'R13':13, 'R14':14, 'R15':15, 
+                        'R12':12, 'R13':13, 'R14':14, 'R15':15,
                         'SCREEN':16384, 'KBD':24576}
         # if we encounter a label this is the line that it'll refer to
         #next_line = 1
@@ -47,9 +47,9 @@ class hackAssembler():
         if line[1:].isdigit():
             decnum = int(line[1:])
             bincmd = self.cmd_from_num(decnum)
-        # TODO: check here for '(' which is the start of labels 
+        # TODO: check here for '(' which is the start of labels
         #(which don't increment the line #)
-        elif self.is_legal_var_name(line[1:]): 
+        elif self.is_legal_var_name(line[1:]):
             # TODO: define this earlier?
             varname = line[1:]
             if varname in self.vardict.keys():
@@ -127,7 +127,7 @@ class hackAssembler():
         else:
             raise Exception("Assembler: Illegal jump command: " + jump)
         return jumpcmd
-    
+
     # there are a limited number of allowed calculations ...
     # so, effectively do a switch on them. This feels dirty.
     def parse_calc(self, calc):
@@ -201,10 +201,10 @@ class hackAssembler():
         destcmd = self.parse_dest(dest)
         jumpcmd = self.parse_jump(jump)
         calccmd = self.parse_calc(calc)
-    
+
         bincmd = '111' + calccmd + destcmd + jumpcmd
         return [bincmd]
-    
+
     # this function assumes that the input is an array of lines,
     # some of which will be labels.
     # it returns an array w/ the labels removed and their appropriate
@@ -226,7 +226,6 @@ class hackAssembler():
         return outlines
 
 
- 
 # preprocessing, not part of the assembler itself
 def clean_file(filename):
     infile = open(filename, 'r')
@@ -248,7 +247,7 @@ if __name__== "__main__":
     if len(args) != 3:
         print "Usage: ./Assembler.py infile outfile"
         exit
-    
+
     infile = args[1]
     outfile = args[2]
 
@@ -256,7 +255,7 @@ if __name__== "__main__":
     # the second to properly encode all the asm->hack commands
     # NB - unless I misunderstand how this is supposed to work, @label will
     # have really weird behavior if it's not followed by 0;JMP
-    # todo: I think this is kinda ugly ... I'm not happy w/ which functions 
+    # todo: I think this is kinda ugly ... I'm not happy w/ which functions
     #     are class member functions
     cleanlines = clean_file(infile)
     myassembler = hackAssembler()
@@ -275,8 +274,3 @@ if __name__== "__main__":
     for cmd in hackcode:
         outfile.write(cmd[0] + '\n')
     outfile.close()
-
-    
-
-
-
