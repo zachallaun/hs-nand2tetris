@@ -62,20 +62,9 @@ class hackAssembler():
     # NB - format of a C expr is
     # x=y;JMP
     def segment_c_expr(self, line):
-        if '=' in line:
-            tokens = line.split('=')
-            dest = tokens[0]
-            line = tokens[1]
-        else:
-            dest = None
-        if ';' in line:
-            tokens = line.split(';')
-            expr = tokens[0]
-            jump = tokens[1]
-        else:
-            expr = line
-            jump = None
-        return (dest, expr, jump)
+        m = re.match(r'((?P<dest>.*)=)?(?P<expr>[^;]*)(;(?P<jump>.*))?',
+                     line).groupdict()
+        return (m['dest'], m['expr'], m['jump'])
 
     def parse_dest(self, dest):
         # TODO: Ignores poorly-formed dest commands
