@@ -22,14 +22,9 @@ class hackAssembler():
 
     # generates the appropriate a command from a given int
     def cmd_from_num(self, num):
-        binnum = bin(num)[2:]
-        # checking bounds!
         if (0 > num) or (num >= 2**15):
             raise Exception("Assembler: out-of-range assignment to A!:  " + line)
-        numdigits = min(15, len(binnum))
-        numzeros = 16-numdigits
-        bincmd='0'*numzeros + binnum[-numdigits:]
-        return bincmd
+        return '{:016b}'.format(num)
 
     # returns whether or not the input string is a legal variable namex
     # TODO: better way to set allowed symbols/characters?
