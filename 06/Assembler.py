@@ -69,22 +69,10 @@ class hackAssembler():
     def parse_dest(self, dest):
         # TODO: Ignores poorly-formed dest commands
         if dest is None:
-            destcmd = '000'
+            return '000'
         else:
-            destcmd = ''
-            if 'A' in dest:
-                destcmd += '1'
-            else:
-                destcmd += '0'
-            if 'D' in dest:
-                destcmd += '1'
-            else:
-                destcmd += '0'
-            if 'M' in dest:
-                destcmd += '1'
-            else:
-                destcmd += '0'
-        return destcmd
+            return ''.join('1' if c in dest else '0'
+                           for c in ['A', 'D', 'M'])
 
     # parses jump command - raises Exception if bad command
     def parse_jump(self, jump):
