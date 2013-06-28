@@ -6,7 +6,7 @@ import Assembler
 class TestCExpressions(unittest.TestCase):
     def setUp(self):
         self.asm = Assembler.hackAssembler()
-    
+
     def testIllegalFormat(self):
         in1 = 'JMP' # need to have somethign to left of ';'
         in2 = ';JMP' # need to have somethign to left of ';'
@@ -77,7 +77,7 @@ class TestCExpressions(unittest.TestCase):
         cmd8 = 'JMP'
         out8 = self.asm.parse_jump(cmd8)
         self.assertEqual('111', out8)
-        
+
         # now for the illegal expressions...
         cmd9 = 'JMP2'
         self.assertRaises(Exception, self.asm.parse_jump, cmd9)
@@ -125,7 +125,7 @@ class TestCExpressions(unittest.TestCase):
         bad3 = '1+1'
         self.assertRaises(Exception, self.asm.parse_calc, bad3)
 
-    # This is probably overkill ... 
+    # This is probably overkill ...
     def testJumpCommand(self):
         # start with the good ones
         in0 = 'D=0'
@@ -152,8 +152,8 @@ class TestCExpressions(unittest.TestCase):
         in7 = 'D;JMP'
         out7 = self.asm.handle_c_expr(in7)
         self.assertEqual(out7, ['1110001100000111'])
-            
-        
+
+
     # as a first step, I'm going to only parse assignments
     def testZeroAssignment(self):
         in1 = 'A=0'
@@ -168,7 +168,7 @@ class TestCExpressions(unittest.TestCase):
         in4 = 'ADM=0'
         out4 = self.asm.handle_c_expr(in4)
         self.assertEqual(out4, ['1110101010111000'])
-        
+
 # these are OK
 # '=0;JMP' # computes 0, JMP
 # '0;JMP' # same thing
@@ -209,7 +209,7 @@ class TestVars(unittest.TestCase):
     def setUp(self):
         self.asm = Assembler.hackAssembler()
 
-    # checks that next_addr increments as expected, and 
+    # checks that next_addr increments as expected, and
     # repeated variables get the same address
     def testSimple1(self):
         self.assertEqual(16, self.asm.next_addr)
@@ -227,10 +227,10 @@ class TestVars(unittest.TestCase):
 
 
 
-# add A expressions with vars? 
+# add A expressions with vars?
 # test this by defining variables in sequence, then checking their addresses
-# will require turning the self.asm into a class s.t. it can keep track of  
-# that state. 
+# will require turning the self.asm into a class s.t. it can keep track of
+# that state.
 # in1 = '@f00' # this one is ok
 # in2 = '@foo'
 # in3 = '@bar'
